@@ -11,7 +11,7 @@
     }
     body {
       margin: 0;
-      padding: 24px 16px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -20,9 +20,35 @@
       background: #f8fafc;
       font-family: system-ui, -apple-system, sans-serif;
     }
+    .top-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .refresh-btn {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    .refresh-btn:active {
+      transform: scale(0.95);
+      background: #f1f5f9;
+    }
     .header-box {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     .status-text {
       font-size: 26px;
@@ -37,11 +63,11 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      margin: 40px 0;
+      margin: 25px 0;
     }
     .mic-button {
-      width: 170px;
-      height: 170px;
+      width: 165px;
+      height: 165px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ef4444, #dc2626);
       border: 8px solid #fee2e2;
@@ -62,8 +88,8 @@
       animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
     .mic-icon {
-      width: 75px;
-      height: 75px;
+      width: 70px;
+      height: 70px;
       fill: #ffffff;
     }
     @keyframes pulse-ring {
@@ -76,7 +102,7 @@
       max-width: 480px;
       background: #ffffff;
       border-radius: 18px;
-      padding: 20px 24px;
+      padding: 18px 20px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
       margin-bottom: 20px;
       display: none;
@@ -85,12 +111,9 @@
     }
     .result-row {
       margin-bottom: 12px;
-      font-size: 20px;
+      font-size: 19px;
       color: #334155;
       line-height: 1.5;
-    }
-    .result-row:last-child {
-      margin-bottom: 0;
     }
     .tag {
       display: inline-block;
@@ -103,9 +126,91 @@
     }
     .tag-en { background-color: #2563eb; }
     .tag-ar { background-color: #059669; }
+    
+    .repeat-btn {
+      width: 100%;
+      margin-top: 14px;
+      background: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .repeat-btn:active {
+      transform: scale(0.98);
+      background: #0369a1;
+    }
+
+    /* برانڈنگ بار */
+    .branding-bar {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      margin-top: 15px;
+      direction: ltr; /* انگریزی برانڈنگ سیدھی رکھنے کے لیے */
+    }
+    .profile-img {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #2563eb;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+    .branding-content {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .branding-content strong {
+      color: #0f172a;
+      font-size: 14px;
+    }
+    .whatsapp-link {
+      color: #16a34a;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .whatsapp-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+
+  <!-- اوپر ریفریش بٹن -->
+  <div class="top-bar">
+    <button class="refresh-btn" onclick="window.location.reload();">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+      </svg>
+      ریفریش (نیا صفحہ)
+    </button>
+  </div>
 
   <div class="header-box">
     <div class="status-text" id="statusLabel">مائیک کا بٹن دبائیں اور بولیں</div>
@@ -119,16 +224,40 @@
     </button>
   </div>
 
+  <!-- رزلٹ کارڈ اور ریپیٹ بٹن -->
   <div class="result-card" id="resultCard">
     <div class="result-row" id="rowOriginal"></div>
     <div class="result-row" id="rowEnglish"></div>
     <div class="result-row" id="rowArabic"></div>
+
+    <button class="repeat-btn" id="repeatBtn" onclick="repeatCurrentAudio()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.77 20 14.44 20 13c0-4.42-3.58-8-8-8zm-6 8c0-1.01.25-1.97.7-2.8L5.24 8.74C4.46 10.23 4 11.56 4 13c0 4.42 3.58 8 8 8v4l5-5-5-5v4c-3.31 0-6-2.69-6-6z"/>
+      </svg>
+      دوبارہ سنیں (Repeat)
+    </button>
+  </div>
+
+  <!-- برانڈنگ بار مع پروفائل فوٹو اور کلک ایبل واٹس ایپ لنک -->
+  <div class="branding-bar">
+    <img src="profile.png" alt="HassaanulHaq" class="profile-img" onerror="this.src='https://ui-avatars.com/api/?name=Hassaan+ul+Haq&background=0284c7&color=fff&size=100'">
+    <div class="branding-content">
+      <div>Designed by <strong>"HassaanulHaq"</strong></div>
+      <div>For more apps contact WhatsApp (text only):</div>
+      <a href="https://wa.me/923324411598?text=Hello%20HassaanulHaq,%20I%20am%20contacting%20regarding%20your%20Voice%20Translator%20App" target="_blank" class="whatsapp-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="#16a34a">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.44 19.65L5.27 16.61L5.09 16.31C4.24 14.97 3.79 13.46 3.79 11.91C3.79 7.37 7.49 3.67 12.05 3.67Z"/>
+        </svg>
+        +92 (332) 4411598
+      </a>
+    </div>
   </div>
 
   <script>
     let recognition = null;
     let isListening = false;
     let currentAudio = null;
+    let lastTranslations = null; // ریپیٹ کے لیے محفوظ شدہ ڈیٹا
 
     const micBtn = document.getElementById('micBtn');
     const statusLabel = document.getElementById('statusLabel');
@@ -223,13 +352,12 @@
     async function startExecutionPipeline(spokenText) {
       const introText = "بارک اللہ ، چلیں دیکھتے ہیں اس جملے کو انگریزی اور عربی میں کیسے کہیں گے";
       
-      // اردو تمہید (0.85x)
       speakControlledAudio(introText, "ur", 0.85, () => {
         fetchTranslations(spokenText).then(res => {
+          lastTranslations = res; // دوبارہ سننے کے لیے محفوظ کریں
           rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${res.english}`;
           rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${res.arabic}`;
 
-          // انگریزی اور عربی کے لیے رفتار کو خاص طور پر 0.50x کر دیا گیا ہے
           playSequence([
             { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur", rate: 0.85 },
             { text: res.english, lang: "en", rate: 0.50 },
@@ -238,6 +366,21 @@
           ]);
         });
       });
+    }
+
+    // ریپیٹ فنکشن جو بغیر دوبارہ بولے ترجمہ سناتا ہے
+    function repeatCurrentAudio() {
+      if (!lastTranslations) return;
+      stopAllAudio();
+      statusLabel.innerText = "دوبارہ سنیں:";
+      statusLabel.style.color = "#0284c7";
+
+      playSequence([
+        { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur", rate: 0.85 },
+        { text: lastTranslations.english, lang: "en", rate: 0.50 },
+        { text: "اور اس جملے کو عربی میں اس طرح کہیں گے", lang: "ur", rate: 0.85 },
+        { text: lastTranslations.arabic, lang: "ar", rate: 0.50 }
+      ]);
     }
 
     async function fetchTranslations(urdu) {
