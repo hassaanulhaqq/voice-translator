@@ -223,18 +223,18 @@
     async function startExecutionPipeline(spokenText) {
       const introText = "بارک اللہ ، چلیں دیکھتے ہیں اس جملے کو انگریزی اور عربی میں کیسے کہیں گے";
       
-      // 1. تمہیدی جملہ بولیں
-      speakSlowAudio(introText, "ur", () => {
-        // 2. ترجمہ آنے پر باقی فلو
+      // اردو تمہیدی جملہ
+      speakControlledAudio(introText, "ur", 0.85, () => {
         fetchTranslations(spokenText).then(res => {
           rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${res.english}`;
           rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${res.arabic}`;
 
+          // ترتیب وار سلسلہ: انگریزی اور عربی کے لیے رفتار خاص طور پر 0.70x رکھی گئی ہے
           playSequence([
-            { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur" },
-            { text: res.english, lang: "en" },
-            { text: "اور اس جملے کو عربی میں اس طرح کہیں گے", lang: "ur" },
-            { text: res.arabic, lang: "ar" }
+            { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur", rate: 0.85 },
+            { text: res.english, lang: "en", rate: 0.70 },
+            { text: "اور اس جملے کو عربی میں اس طرح کہیں گے", lang: "ur", rate: 0.85 },
+            { text: res.arabic, lang: "ar", rate: 0.70 }
           ]);
         });
       });
@@ -266,37 +266,46 @@
       }
     }
 
-    // رفتار کو کم کر کے ٹھہر ٹھہر کر بولنے والا آڈیو فنکشن
-    function speakSlowAudio(text, lang, onFinish) {
+    // رفتار کو ہر حالت میں کنٹرول رکھنے والا پائیدار فنکشن
+    function speakControlledAudio(text, lang, targetRate, onFinish) {
       const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`;
       const audio = new Audio(audioUrl);
-      
-      // آواز کی رفتار 0.8x (پُرسکون اور واضح)
-      audio.playbackRate = 0.82;
       currentAudio = audio;
+
+      const enforceRate = () => {
+        try {
+          audio.playbackRate = targetRate;
+        } catch(e) {}
+      };
+
+      // آڈیو لوڈ اور پلے ہوتے ہی سپیڈ کو جبراً سیٹ کرنا
+      audio.addEventListener('loadedmetadata', enforceRate);
+      audio.addEventListener('play', enforceRate);
+      audio.addEventListener('playing', enforceRate);
 
       let finished = false;
       const done = () => {
         if (!finished) {
           finished = true;
-          // جملے کے بعد 600 ملی سیکنڈ کا مختصر خاموش وقفہ
+          // جملے کے بعد 700 ملی سیکنڈ کا پرسکون وقفہ
           setTimeout(() => {
             if (onFinish) onFinish();
-          }, 600);
+          }, 700);
         }
       };
 
       audio.onended = done;
       audio.onerror = () => {
+        // فال بیک
         const utt = new SpeechSynthesisUtterance(text);
         utt.lang = lang === "ur" ? "ur-PK" : lang === "ar" ? "ar-SA" : "en-US";
-        utt.rate = 0.80; // نیٹو آواز کی رفتار بھی دھیمی
+        utt.rate = targetRate;
         utt.onend = done;
         utt.onerror = done;
         window.speechSynthesis.speak(utt);
       };
 
-      audio.play().catch(() => {
+      audio.play().then(enforceRate).catch(() => {
         done();
       });
     }
@@ -307,7 +316,7 @@
         if (idx < playlist.length) {
           const item = playlist[idx];
           idx++;
-          speakSlowAudio(item.text, item.lang, next);
+          speakControlledAudio(item.text, item.lang, item.rate, next);
         } else {
           statusLabel.innerText = "مائیک کا بٹن دبائیں اور بولیں";
           statusLabel.style.color = "#1e293b";
