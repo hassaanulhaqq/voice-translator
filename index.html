@@ -137,7 +137,6 @@
     const rowEnglish = document.getElementById('rowEnglish');
     const rowArabic = document.getElementById('rowArabic');
 
-    // اینڈرائڈ اور کروم اسپیچ سیٹ اپ
     function setupRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -166,7 +165,7 @@
         startExecutionPipeline(text);
       };
 
-      rec.onerror = (e) => {
+      rec.onerror = () => {
         isListening = false;
         micBtn.classList.remove('listening');
         statusLabel.innerText = "دوبارہ مائیک دبائیں";
@@ -197,7 +196,6 @@
           setTimeout(() => { try { recognition.start(); } catch(err){} }, 100);
         }
       } else {
-        // مائیک کو فوراً بند کرنا
         recognition.stop();
         isListening = false;
         micBtn.classList.remove('listening');
@@ -223,10 +221,11 @@
     }
 
     async function startExecutionPipeline(spokenText) {
-      // 1. تمہیدی آڈیو چلائیں
       const introText = "بارک اللہ ، چلیں دیکھتے ہیں اس جملے کو انگریزی اور عربی میں کیسے کہیں گے";
-      speakNativeOrAudio(introText, "ur", () => {
-        // 2. ترجمہ مکمل ہونے پر باقی آوازیں
+      
+      // 1. تمہیدی جملہ بولیں
+      speakSlowAudio(introText, "ur", () => {
+        // 2. ترجمہ آنے پر باقی فلو
         fetchTranslations(spokenText).then(res => {
           rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${res.english}`;
           rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${res.arabic}`;
@@ -241,7 +240,6 @@
       });
     }
 
-    // پائیدار اور بامحاورہ ترجمہ
     async function fetchTranslations(urdu) {
       try {
         const [enRes, arRes] = await Promise.all([
@@ -255,7 +253,6 @@
         let en = enData[0][0][0];
         let ar = arData[0][0][0];
 
-        // عام بول چال کے فقروں کی خودکار تصحیح
         const clean = urdu.trim();
         if (clean.includes("میرا نام") || clean.includes("میرا نا")) {
           const name = clean.replace(/میرا نام|میرا نا|ہے/g, "").trim();
@@ -269,25 +266,31 @@
       }
     }
 
-    // موبائل پر آڈیو پلے کرنے کا سب سے پائیدار طریقہ
-    function speakNativeOrAudio(text, lang, onFinish) {
+    // رفتار کو کم کر کے ٹھہر ٹھہر کر بولنے والا آڈیو فنکشن
+    function speakSlowAudio(text, lang, onFinish) {
       const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`;
       const audio = new Audio(audioUrl);
+      
+      // آواز کی رفتار 0.8x (پُرسکون اور واضح)
+      audio.playbackRate = 0.82;
       currentAudio = audio;
 
       let finished = false;
       const done = () => {
         if (!finished) {
           finished = true;
-          if (onFinish) onFinish();
+          // جملے کے بعد 600 ملی سیکنڈ کا مختصر خاموش وقفہ
+          setTimeout(() => {
+            if (onFinish) onFinish();
+          }, 600);
         }
       };
 
       audio.onended = done;
       audio.onerror = () => {
-        // فال بیک
         const utt = new SpeechSynthesisUtterance(text);
         utt.lang = lang === "ur" ? "ur-PK" : lang === "ar" ? "ar-SA" : "en-US";
+        utt.rate = 0.80; // نیٹو آواز کی رفتار بھی دھیمی
         utt.onend = done;
         utt.onerror = done;
         window.speechSynthesis.speak(utt);
@@ -304,7 +307,7 @@
         if (idx < playlist.length) {
           const item = playlist[idx];
           idx++;
-          speakNativeOrAudio(item.text, item.lang, next);
+          speakSlowAudio(item.text, item.lang, next);
         } else {
           statusLabel.innerText = "مائیک کا بٹن دبائیں اور بولیں";
           statusLabel.style.color = "#1e293b";
