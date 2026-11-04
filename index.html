@@ -2,47 +2,58 @@
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>صوتی مترجم</title>
   
-  <!-- جمیل نوری نستعلیق ویب فانٹ -->
-  <link rel="stylesheet" href="https://fontlibrary.org//face/jameel-noori-nastaleeq">
-  
+  <!-- جمیل نوری نستعلیق فانٹ -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notonastaliqurdudraft.css">
   <style>
+    @font-face {
+      font-family: 'Jameel Noori Nastaleeq';
+      src: url('https://cdn.jsdelivr.net/gh/mshoaib/urdu-fonts/fonts/Jameel%20Noori%20Nastaleeq.ttf') format('truetype');
+      font-display: swap;
+    }
+
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-    }
-    body {
       margin: 0;
-      padding: 12px 14px;
+      padding: 0;
+    }
+
+    body {
+      padding: 10px 14px 12px 14px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
+      /* جدید موبائل ڈائنامک اسکرین فٹنگ */
       height: 100vh;
-      max-height: 100vh;
-      overflow: hidden; /* موبائل پر فالتو اسکرول مکمل ختم */
+      height: 100dvh;
       background: #f8fafc;
-      font-family: 'JameelNooriNastaleeqRegular', 'Noto Nastaliq Urdu', system-ui, -apple-system, sans-serif;
+      font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu Draft', system-ui, sans-serif;
+      overflow-y: auto;
     }
+
     .top-bar {
       width: 100%;
-      max-width: 480px;
+      max-width: 450px;
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      flex-shrink: 0;
     }
+
     .refresh-btn {
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
       border-radius: 8px;
-      padding: 5px 12px;
+      padding: 6px 14px;
       font-size: 15px;
       font-weight: 700;
       color: #334155;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
       font-family: inherit;
@@ -53,36 +64,41 @@
       transform: scale(0.95);
       background: #f1f5f9;
     }
+
     .header-box {
       text-align: center;
-      margin-top: 4px;
+      margin: 4px 0;
+      flex-shrink: 0;
     }
+
     .status-text {
-      font-size: 24px;
+      font-size: 25px;
       font-weight: 800;
       color: #1e293b;
-      min-height: 34px;
       line-height: 1.6;
       transition: color 0.2s;
     }
+
     .center-container {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       width: 100%;
-      margin: 8px 0;
+      flex-grow: 1;
+      margin: 6px 0;
     }
-    /* اسکرول روکنے کے لیے مائیک کا متوازن چھوٹا سائز */
+
+    /* واضح اور مناسب بڑا مائیک */
     .mic-button {
-      width: 120px;
-      height: 120px;
+      width: 145px;
+      height: 145px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ef4444, #dc2626);
-      border: 6px solid #fee2e2;
+      border: 7px solid #fee2e2;
       outline: none;
       cursor: pointer;
-      box-shadow: 0 12px 28px rgba(220, 38, 38, 0.3);
+      box-shadow: 0 14px 32px rgba(220, 38, 38, 0.35);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -97,29 +113,31 @@
       animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
     .mic-icon {
-      width: 52px;
-      height: 52px;
+      width: 64px;
+      height: 64px;
       fill: #ffffff;
     }
     @keyframes pulse-ring {
       0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-      70% { box-shadow: 0 0 0 25px rgba(220, 38, 38, 0); }
+      70% { box-shadow: 0 0 0 28px rgba(220, 38, 38, 0); }
       100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
     }
+
     .result-card {
       width: 100%;
-      max-width: 480px;
+      max-width: 450px;
       background: #ffffff;
       border-radius: 14px;
       padding: 12px 16px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 8px;
+      margin: 6px 0;
       display: none;
       border: 1px solid #e2e8f0;
       text-align: right;
+      flex-shrink: 0;
     }
     .result-row {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-size: 18px;
       color: #334155;
       line-height: 1.6;
@@ -144,7 +162,7 @@
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 7px 12px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
@@ -154,27 +172,28 @@
       gap: 6px;
       font-family: inherit;
       box-shadow: 0 3px 10px rgba(2, 132, 199, 0.2);
-      transition: background 0.2s, transform 0.1s;
     }
     .repeat-btn:active {
       transform: scale(0.98);
       background: #0369a1;
     }
 
-    /* برانڈنگ بار */
+    /* مکمل محفوظ برانڈنگ بار */
     .branding-bar {
       width: 100%;
-      max-width: 480px;
+      max-width: 450px;
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 8px 12px;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
       direction: ltr;
       font-family: system-ui, -apple-system, sans-serif;
+      flex-shrink: 0;
+      margin-bottom: 2px;
     }
     .profile-img {
       width: 42px;
@@ -205,9 +224,6 @@
       align-items: center;
       gap: 4px;
       margin-top: 1px;
-    }
-    .whatsapp-link:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
