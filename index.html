@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>صوتی مترجم</title>
+  
+  <!-- جمیل نوری نستعلیق ویب فانٹ -->
+  <link rel="stylesheet" href="https://fontlibrary.org//face/jameel-noori-nastaleeq">
+  
   <style>
     * {
       box-sizing: border-box;
@@ -11,27 +15,29 @@
     }
     body {
       margin: 0;
-      padding: 16px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden; /* موبائل پر فالتو اسکرول مکمل ختم */
       background: #f8fafc;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'JameelNooriNastaleeqRegular', 'Noto Nastaliq Urdu', system-ui, -apple-system, sans-serif;
     }
     .top-bar {
       width: 100%;
-      max-width: 500px;
+      max-width: 480px;
       display: flex;
       justify-content: flex-start;
       align-items: center;
     }
     .refresh-btn {
       background: #ffffff;
-      border: 2px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 8px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 5px 12px;
       font-size: 15px;
       font-weight: 700;
       color: #334155;
@@ -39,7 +45,8 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      font-family: inherit;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
       transition: all 0.2s ease;
     }
     .refresh-btn:active {
@@ -48,13 +55,14 @@
     }
     .header-box {
       text-align: center;
-      margin-top: 10px;
+      margin-top: 4px;
     }
     .status-text {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       color: #1e293b;
-      min-height: 40px;
+      min-height: 34px;
+      line-height: 1.6;
       transition: color 0.2s;
     }
     .center-container {
@@ -63,17 +71,18 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      margin: 25px 0;
+      margin: 8px 0;
     }
+    /* اسکرول روکنے کے لیے مائیک کا متوازن چھوٹا سائز */
     .mic-button {
-      width: 165px;
-      height: 165px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ef4444, #dc2626);
-      border: 8px solid #fee2e2;
+      border: 6px solid #fee2e2;
       outline: none;
       cursor: pointer;
-      box-shadow: 0 16px 36px rgba(220, 38, 38, 0.35);
+      box-shadow: 0 12px 28px rgba(220, 38, 38, 0.3);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -88,61 +97,63 @@
       animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
     .mic-icon {
-      width: 70px;
-      height: 70px;
+      width: 52px;
+      height: 52px;
       fill: #ffffff;
     }
     @keyframes pulse-ring {
       0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-      70% { box-shadow: 0 0 0 35px rgba(220, 38, 38, 0); }
+      70% { box-shadow: 0 0 0 25px rgba(220, 38, 38, 0); }
       100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
     }
     .result-card {
       width: 100%;
       max-width: 480px;
       background: #ffffff;
-      border-radius: 18px;
-      padding: 18px 20px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-      margin-bottom: 20px;
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 8px;
       display: none;
       border: 1px solid #e2e8f0;
       text-align: right;
     }
     .result-row {
-      margin-bottom: 12px;
-      font-size: 19px;
+      margin-bottom: 8px;
+      font-size: 18px;
       color: #334155;
-      line-height: 1.5;
+      line-height: 1.6;
     }
     .tag {
       display: inline-block;
       font-size: 13px;
       font-weight: bold;
-      padding: 3px 10px;
-      border-radius: 6px;
-      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      margin-left: 6px;
       color: #fff;
+      font-family: system-ui, sans-serif;
     }
     .tag-en { background-color: #2563eb; }
     .tag-ar { background-color: #059669; }
     
     .repeat-btn {
       width: 100%;
-      margin-top: 14px;
+      margin-top: 8px;
       background: #0284c7;
       color: white;
       border: none;
-      border-radius: 10px;
-      padding: 10px 16px;
+      border-radius: 8px;
+      padding: 8px 12px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 3px 10px rgba(2, 132, 199, 0.2);
       transition: background 0.2s, transform 0.1s;
     }
     .repeat-btn:active {
@@ -156,18 +167,18 @@
       max-width: 480px;
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 10px 14px;
+      border-radius: 10px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-      margin-top: 15px;
-      direction: ltr; /* انگریزی برانڈنگ سیدھی رکھنے کے لیے */
+      gap: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+      direction: ltr;
+      font-family: system-ui, -apple-system, sans-serif;
     }
     .profile-img {
-      width: 46px;
-      height: 46px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid #2563eb;
@@ -177,14 +188,14 @@
     .branding-content {
       display: flex;
       flex-direction: column;
-      font-size: 13px;
+      font-size: 12px;
       color: #475569;
-      line-height: 1.4;
+      line-height: 1.35;
       text-align: left;
     }
     .branding-content strong {
       color: #0f172a;
-      font-size: 14px;
+      font-size: 13px;
     }
     .whatsapp-link {
       color: #16a34a;
@@ -193,7 +204,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .whatsapp-link:hover {
       text-decoration: underline;
@@ -205,10 +216,10 @@
   <!-- اوپر ریفریش بٹن -->
   <div class="top-bar">
     <button class="refresh-btn" onclick="window.location.reload();">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
       </svg>
-      ریفریش (نیا صفحہ)
+      نیا صفحہ (ریفریش)
     </button>
   </div>
 
@@ -231,21 +242,21 @@
     <div class="result-row" id="rowArabic"></div>
 
     <button class="repeat-btn" id="repeatBtn" onclick="repeatCurrentAudio()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.77 20 14.44 20 13c0-4.42-3.58-8-8-8zm-6 8c0-1.01.25-1.97.7-2.8L5.24 8.74C4.46 10.23 4 11.56 4 13c0 4.42 3.58 8 8 8v4l5-5-5-5v4c-3.31 0-6-2.69-6-6z"/>
       </svg>
-      دوبارہ سنیں (Repeat)
+      دوبارہ سنیں
     </button>
   </div>
 
-  <!-- برانڈنگ بار مع پروفائل فوٹو اور کلک ایبل واٹس ایپ لنک -->
+  <!-- برانڈنگ بار -->
   <div class="branding-bar">
     <img src="profile.png" alt="HassaanulHaq" class="profile-img" onerror="this.src='https://ui-avatars.com/api/?name=Hassaan+ul+Haq&background=0284c7&color=fff&size=100'">
     <div class="branding-content">
       <div>Designed by <strong>"HassaanulHaq"</strong></div>
       <div>For more apps contact WhatsApp (text only):</div>
       <a href="https://wa.me/923324411598?text=Hello%20HassaanulHaq,%20I%20am%20contacting%20regarding%20your%20Voice%20Translator%20App" target="_blank" class="whatsapp-link">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="#16a34a">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#16a34a">
           <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.44 19.65L5.27 16.61L5.09 16.31C4.24 14.97 3.79 13.46 3.79 11.91C3.79 7.37 7.49 3.67 12.05 3.67Z"/>
         </svg>
         +92 (332) 4411598
@@ -257,7 +268,7 @@
     let recognition = null;
     let isListening = false;
     let currentAudio = null;
-    let lastTranslations = null; // ریپیٹ کے لیے محفوظ شدہ ڈیٹا
+    let lastTranslations = null;
 
     const micBtn = document.getElementById('micBtn');
     const statusLabel = document.getElementById('statusLabel');
@@ -354,7 +365,7 @@
       
       speakControlledAudio(introText, "ur", 0.85, () => {
         fetchTranslations(spokenText).then(res => {
-          lastTranslations = res; // دوبارہ سننے کے لیے محفوظ کریں
+          lastTranslations = res;
           rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${res.english}`;
           rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${res.arabic}`;
 
@@ -368,7 +379,6 @@
       });
     }
 
-    // ریپیٹ فنکشن جو بغیر دوبارہ بولے ترجمہ سناتا ہے
     function repeatCurrentAudio() {
       if (!lastTranslations) return;
       stopAllAudio();
