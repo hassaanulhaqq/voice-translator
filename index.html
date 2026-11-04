@@ -27,7 +27,6 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      /* جدید موبائل ڈائنامک اسکرین فٹنگ */
       height: 100vh;
       height: 100dvh;
       background: #f8fafc;
@@ -71,8 +70,21 @@
       flex-shrink: 0;
     }
 
+    .instruction-text {
+      font-size: 19px;
+      color: #334155;
+      line-height: 1.8;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .highlight-lang {
+      color: #b91c1c;
+      font-weight: 900;
+    }
+
     .status-text {
-      font-size: 25px;
+      font-size: 24px;
       font-weight: 800;
       color: #1e293b;
       line-height: 1.6;
@@ -89,10 +101,9 @@
       margin: 6px 0;
     }
 
-    /* واضح اور مناسب بڑا مائیک */
     .mic-button {
-      width: 145px;
-      height: 145px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ef4444, #dc2626);
       border: 7px solid #fee2e2;
@@ -113,8 +124,8 @@
       animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
     .mic-icon {
-      width: 64px;
-      height: 64px;
+      width: 60px;
+      height: 60px;
       fill: #ffffff;
     }
     @keyframes pulse-ring {
@@ -178,7 +189,6 @@
       background: #0369a1;
     }
 
-    /* مکمل محفوظ برانڈنگ بار */
     .branding-bar {
       width: 100%;
       max-width: 450px;
@@ -240,6 +250,9 @@
   </div>
 
   <div class="header-box">
+    <div class="instruction-text">
+      اپنی بات (<span class="highlight-lang">اردو</span>) میں بولیں اور اس کا <span class="highlight-lang">انگریزی</span> اور <span class="highlight-lang">عربی</span> ترجمہ سننے کیلئے
+    </div>
     <div class="status-text" id="statusLabel">مائیک کا بٹن دبائیں اور بولیں</div>
   </div>
 
