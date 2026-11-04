@@ -126,15 +126,9 @@
   </div>
 
   <script>
-    const GEMINI_API_KEY = "AQ.Ab8RN6L9MnMV3rSgXdRnCmi2sChAbMtQ-TP03sxbNZHEiiIdOQ";
-
-    let recognition;
+    let recognition = null;
     let isListening = false;
     let currentAudio = null;
-
-    const INTRO_TEXT = "بارک اللہ ، چلیں دیکھتے ہیں اس جملے کو انگریزی اور عربی میں کیسے کہیں گے";
-    const introAudioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ur&client=tw-ob&q=${encodeURIComponent(INTRO_TEXT)}`;
-    const introAudio = new Audio(introAudioUrl);
 
     const micBtn = document.getElementById('micBtn');
     const statusLabel = document.getElementById('statusLabel');
@@ -143,61 +137,82 @@
     const rowEnglish = document.getElementById('rowEnglish');
     const rowArabic = document.getElementById('rowArabic');
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    // اینڈرائڈ اور کروم اسپیچ سیٹ اپ
+    function setupRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = 'ur-PK';
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      if (!SpeechRecognition) {
+        statusLabel.innerText = "براؤزر میں مائیک کی سہولت موجود نہیں۔";
+        return null;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = 'ur-PK';
+      rec.continuous = false;
+      rec.interimResults = false;
 
-      recognition.onstart = () => {
+      rec.onstart = () => {
         isListening = true;
         micBtn.classList.add('listening');
         statusLabel.innerText = "سن رہا ہے... بولئے";
         statusLabel.style.color = "#dc2626";
       };
 
-      recognition.onresult = (event) => {
-        const spokenText = event.results[0][0].transcript;
+      rec.onresult = (event) => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        const text = event.results[0][0].transcript;
         statusLabel.innerText = "سنیں:";
         statusLabel.style.color = "#2563eb";
-        displayOriginalText(spokenText);
-
-        startFlowWithMasking(spokenText);
+        displayOriginalText(text);
+        startExecutionPipeline(text);
       };
 
-      recognition.onerror = () => {
+      rec.onerror = (e) => {
+        isListening = false;
+        micBtn.classList.remove('listening');
         statusLabel.innerText = "دوبارہ مائیک دبائیں";
         statusLabel.style.color = "#1e293b";
-        resetMic();
       };
 
-      recognition.onend = () => {
-        resetMic();
+      rec.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
       };
-    } else {
-      statusLabel.innerText = "براؤزر میں مائیک کی سہولت موجود نہیں۔";
+
+      return rec;
     }
+
+    recognition = setupRecognition();
 
     function handleMicToggle() {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio = null;
+      stopAllAudio();
+      if (!recognition) {
+        recognition = setupRecognition();
       }
-      introAudio.pause();
-      introAudio.currentTime = 0;
 
-      if (!recognition) return;
       if (!isListening) {
-        try { recognition.start(); } catch(e) {}
+        try {
+          recognition.start();
+        } catch(e) {
+          recognition.abort();
+          setTimeout(() => { try { recognition.start(); } catch(err){} }, 100);
+        }
       } else {
+        // مائیک کو فوراً بند کرنا
         recognition.stop();
+        isListening = false;
+        micBtn.classList.remove('listening');
+        statusLabel.innerText = "مائیک کا بٹن دبائیں اور بولیں";
+        statusLabel.style.color = "#1e293b";
       }
     }
 
-    function resetMic() {
-      micBtn.classList.remove('listening');
-      isListening = false;
+    function stopAllAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = "";
+        currentAudio = null;
+      }
+      window.speechSynthesis.cancel();
     }
 
     function displayOriginalText(text) {
@@ -207,108 +222,95 @@
       rowArabic.innerHTML = "";
     }
 
-    async function startFlowWithMasking(spokenText) {
-      // 1. تمہیدی جملہ فوری چلائیں
-      introAudio.currentTime = 0;
-      introAudio.play().catch(e => console.log(e));
+    async function startExecutionPipeline(spokenText) {
+      // 1. تمہیدی آڈیو چلائیں
+      const introText = "بارک اللہ ، چلیں دیکھتے ہیں اس جملے کو انگریزی اور عربی میں کیسے کہیں گے";
+      speakNativeOrAudio(introText, "ur", () => {
+        // 2. ترجمہ مکمل ہونے پر باقی آوازیں
+        fetchTranslations(spokenText).then(res => {
+          rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${res.english}`;
+          rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${res.arabic}`;
 
-      // 2. گوگل جیمنائی سے بیک گراؤنڈ میں ترجمہ طلب کریں
-      const result = await fetchGeminiTranslation(spokenText);
-
-      rowEnglish.innerHTML = `<span class="tag tag-en">English</span> ${result.english}`;
-      rowArabic.innerHTML = `<span class="tag tag-ar">عربی</span> ${result.arabic}`;
-
-      // 3. تمہیدی جملہ مکمل ہونے پر سلسلہ وار وائس اوور
-      if (!introAudio.ended && !introAudio.paused) {
-        introAudio.onended = () => {
-          playRemainingSequence(result.english, result.arabic);
-        };
-      } else {
-        playRemainingSequence(result.english, result.arabic);
-      }
-    }
-
-    async function fetchGeminiTranslation(urduSentence) {
-      const systemInstruction = `You are an expert multilingual interpreter. Translate the given Urdu sentence into:
-1. Natural, idiomatic spoken English.
-2. The single most natural, modern, and fluent spoken Arabic phrasing used in real-life conversation (avoid literal or overly archaic textbook expressions).
-
-Strictly output valid JSON only in this format:
-{"english": "Translated sentence", "arabic": "Translated sentence"}`;
-
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `${systemInstruction}\n\nUrdu Sentence: "${urduSentence}"`
-              }]
-            }],
-            generationConfig: {
-              response_mime_type: "application/json",
-              temperature: 0.2
-            }
-          })
+          playSequence([
+            { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur" },
+            { text: res.english, lang: "en" },
+            { text: "اور اس جملے کو عربی میں اس طرح کہیں گے", lang: "ur" },
+            { text: res.arabic, lang: "ar" }
+          ]);
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          const jsonText = data.candidates[0].content.parts[0].text;
-          return JSON.parse(jsonText);
-        }
-      } catch (err) {
-        console.log("Gemini fallback triggered");
-      }
-
-      // فال بیک (اگر نیٹ ورک کا کوئی عارضی خلل آئے)
-      return {
-        english: "Translation ready",
-        arabic: "الترجمة جاهزة"
-      };
+      });
     }
 
-    function playRemainingSequence(english, arabic) {
-      const sequence = [
-        { text: "اس جملے کو انگریزی میں اس طرح کہیں گے", lang: "ur" },
-        { text: english, lang: "en" },
-        { text: "اور اس جملے کو عربی میں اس طرح کہیں گے", lang: "ur" },
-        { text: arabic, lang: "ar" }
-      ];
+    // پائیدار اور بامحاورہ ترجمہ
+    async function fetchTranslations(urdu) {
+      try {
+        const [enRes, arRes] = await Promise.all([
+          fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ur&tl=en&dt=t&q=${encodeURIComponent(urdu)}`),
+          fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ur&tl=ar&dt=t&q=${encodeURIComponent(urdu)}`)
+        ]);
 
+        const enData = await enRes.json();
+        const arData = await arRes.json();
+
+        let en = enData[0][0][0];
+        let ar = arData[0][0][0];
+
+        // عام بول چال کے فقروں کی خودکار تصحیح
+        const clean = urdu.trim();
+        if (clean.includes("میرا نام") || clean.includes("میرا نا")) {
+          const name = clean.replace(/میرا نام|میرا نا|ہے/g, "").trim();
+          ar = `أَنَا ${name}`;
+          en = `My name is ${name}`;
+        }
+
+        return { english: en, arabic: ar };
+      } catch (e) {
+        return { english: "Error in translation", arabic: "خطأ في الترجمة" };
+      }
+    }
+
+    // موبائل پر آڈیو پلے کرنے کا سب سے پائیدار طریقہ
+    function speakNativeOrAudio(text, lang, onFinish) {
+      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`;
+      const audio = new Audio(audioUrl);
+      currentAudio = audio;
+
+      let finished = false;
+      const done = () => {
+        if (!finished) {
+          finished = true;
+          if (onFinish) onFinish();
+        }
+      };
+
+      audio.onended = done;
+      audio.onerror = () => {
+        // فال بیک
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = lang === "ur" ? "ur-PK" : lang === "ar" ? "ar-SA" : "en-US";
+        utt.onend = done;
+        utt.onerror = done;
+        window.speechSynthesis.speak(utt);
+      };
+
+      audio.play().catch(() => {
+        done();
+      });
+    }
+
+    function playSequence(playlist) {
       let idx = 0;
-
-      function playNext() {
-        if (idx < sequence.length) {
-          const item = sequence[idx];
-          const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${item.lang}&client=tw-ob&q=${encodeURIComponent(item.text)}`;
-          
-          currentAudio = new Audio(audioUrl);
-          currentAudio.onended = () => {
-            idx++;
-            playNext();
-          };
-          currentAudio.onerror = () => {
-            idx++;
-            playNext();
-          };
-          currentAudio.play().catch(e => {
-            idx++;
-            playNext();
-          });
+      function next() {
+        if (idx < playlist.length) {
+          const item = playlist[idx];
+          idx++;
+          speakNativeOrAudio(item.text, item.lang, next);
         } else {
           statusLabel.innerText = "مائیک کا بٹن دبائیں اور بولیں";
           statusLabel.style.color = "#1e293b";
-          currentAudio = null;
         }
       }
-
-      playNext();
+      next();
     }
   </script>
 </body>
